@@ -15,42 +15,41 @@ router.get('/notes', (req, res, next) => {
   const { searchTerm } = req.query;
   let filter = {};
 
-  mongoose.connect(MONGODB_URI)
-    .then(() => {
-      if (searchTerm) {
-        const re = new RegExp(searchTerm, 'i');
-        filter.title = { $regex: re };
-      }
-      return Note.find(filter)
-        .sort('created')
-        .then(results => {
-          res.json(results);
-        })
-        .catch(err => {
-          next(err);
-        })
-        .then(() => {
-          return mongoose.disconnect()
-            .then(() => {
-              console.info('Disconnected');
-            });
-        })
-        .catch(err => {
-          console.error(`ERROR: ${err.message}`);
-          console.error(err);
-        });
+  if (searchTerm) {
+    const re = new RegExp(searchTerm, 'i');
+    filter.title = { $regex: re };
+  }
+      
+  Note.find(filter)
+    .sort('created')
+    .then(results => {
+      res.json(results);
+    })
+    .catch(err => {
+      next(err);
     });
-  
-
- 
 });
+
 
 /* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/notes/:id', (req, res, next) => {
+  const { id } = req.params;
 
-  console.log('Get a Note');
-  res.json({ id: 2 });
-
+  //don't trust users
+  if(!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
+  Note.findById(id)
+    .then(result => {
+      if(result) {
+        res.json(result);
+      } else {
+        next();
+      }
+    })
+    .catch(next);
 });
 
 /* ========== POST/CREATE AN ITEM ========== */
