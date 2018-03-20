@@ -1,10 +1,10 @@
 'use strict';
 
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 
-const { MONGODB_URI } = require('../config');
+// const { MONGODB_URI } = require('../config');
 
-const Note = require('../models/note');
+// const Note = require('../models/note');
 
 
 //-- GET ALL--//
@@ -36,3 +36,27 @@ const Note = require('../models/note');
 //     console.error(err);
 //   });
 
+const mongoose = require('mongoose');
+
+const { MONGODB_URI } = require('../config');
+const Note = require('../models/note');
+
+mongoose.connect(MONGODB_URI)
+  .then(() => Note.createIndexes())
+  .then(() => {
+    return Note.find(
+      { $text: { $search: 'ways' } })
+      .then(results => {
+        console.log(results);
+      });
+  })
+  .then(() => {
+    return mongoose.disconnect()
+      .then(() => {
+        console.info('Disconnected');
+      });
+  })
+  .catch(err => {
+    console.error(`ERROR: ${err.message}`);
+    console.error(err);
+  });

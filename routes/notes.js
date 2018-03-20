@@ -14,10 +14,11 @@ const Note = require('../models/note');
 router.get('/notes', (req, res, next) => {
   const { searchTerm } = req.query;
   let filter = {};
-
+  //change to use $or operator??
   if (searchTerm) {
     const re = new RegExp(searchTerm, 'i');
     filter.title = { $regex: re };
+    //filter.content = { $regex: re};
   }
       
   Note.find(filter)
@@ -61,7 +62,6 @@ router.post('/notes', (req, res, next) => {
     const field = requiredFields[i];
     if (!(field in req.body)) {
       const message = `Missing \`${field}\` in request body`;
-      console.error(message);
       return res.status(400).send(message);
     }
   }
@@ -98,7 +98,7 @@ router.put('/notes/:id', (req, res, next) => {
 
   const updatedNote = { title, content };
   
-  //need if statement - no content don't set property
+  //need if statement - no content don't set property ??
   
 
   Note.findByIdAndUpdate(id, {$set: updatedNote})

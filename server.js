@@ -42,7 +42,7 @@ app.use(function (err, req, res, next) {
   });
 });
 
-//Listen for incoming connections
+//Connect to database and Listen for incoming connections
 mongoose.connect(MONGODB_URI)
   .then(instance => {
     const conn = instance.connections[0];
