@@ -1,19 +1,48 @@
 'use strict';
 
 const express = require('express');
-// Create an router instance (aka "mini-app")
+// Create a router instance (aka "mini-app")
 const router = express.Router();
+
+const mongoose = require('mongoose');
+
+const { MONGODB_URI } = require('../config');
+
+const Note = require('../models/note');
 
 /* ========== GET/READ ALL ITEM ========== */
 router.get('/notes', (req, res, next) => {
+  const { searchTerm } = req.query;
+  let filter = {};
 
-  console.log('Get All Notes');
-  res.json([
-    { id: 1, title: 'Temp 1' }, 
-    { id: 2, title: 'Temp 2' }, 
-    { id: 3, title: 'Temp 3' }
-  ]);
+  mongoose.connect(MONGODB_URI)
+    .then(() => {
+      if (searchTerm) {
+        const re = new RegExp(searchTerm, 'i');
+        filter.title = { $regex: re };
+      }
+      return Note.find(filter)
+        .sort('created')
+        .then(results => {
+          res.json(results);
+        })
+        .catch(err => {
+          next(err);
+        })
+        .then(() => {
+          return mongoose.disconnect()
+            .then(() => {
+              console.info('Disconnected');
+            });
+        })
+        .catch(err => {
+          console.error(`ERROR: ${err.message}`);
+          console.error(err);
+        });
+    });
+  
 
+ 
 });
 
 /* ========== GET/READ A SINGLE ITEM ========== */
