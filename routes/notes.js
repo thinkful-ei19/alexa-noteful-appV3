@@ -80,18 +80,50 @@ router.post('/notes', (req, res, next) => {
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/notes/:id', (req, res, next) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
 
-  console.log('Update a Note');
-  res.json({ id: 2 });
+  //don't trust users
+  if(!title) {
+    const err = new Error('Mising `title` in request body');
+    err.status = 400;
+    return next(err);
+  }
 
+  if(!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
+
+  const updatedNote = { title, content };
+  
+  //need if statement - no content don't set property
+  
+
+  Note.findByIdAndUpdate(id, {$set: updatedNote})
+    .then(result => {
+      if(result) {
+        res.json(result);
+      } else {
+        next();
+      }
+    })
+    .catch(next);
 });
 
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/notes/:id', (req, res, next) => {
+  const { id } = req.params;
 
-  console.log('Delete a Note');
-  res.status(204).end();
-
+  Note.findByIdAndRemove(id)
+    .then(count => {
+      if(count) {
+        res.status(204).end();
+      } else {
+        next();
+      }
+    });
 });
 
 module.exports = router;
