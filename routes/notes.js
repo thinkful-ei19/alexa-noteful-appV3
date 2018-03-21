@@ -52,11 +52,11 @@ router.get('/notes/:id', (req, res, next) => {
     err.status = 400;
     return next(err);
   }
-  console.log('this is my id', id);
-  console.log(typeof id);
-  Note.findById(id + '')
+  // console.log('this is my id', id);
+  // console.log(typeof id);
+  Note.findById(id)
     .then(result => {
-      console.log('this is my result', result);
+      // console.log('this is my result', result);
       if(result) {
         res.json(result);
       } else {
