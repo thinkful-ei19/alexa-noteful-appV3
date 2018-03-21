@@ -53,7 +53,8 @@ router.get('/notes/:id', (req, res, next) => {
     return next(err);
   }
   console.log('this is my id', id);
-  Note.findById(id)
+  console.log(typeof id);
+  Note.findById(id + '')
     .then(result => {
       console.log('this is my result', result);
       if(result) {
