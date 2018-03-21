@@ -51,6 +51,20 @@ describe('Notes API', function() {
           expect(res.body).to.have.length(data.length);
         });
     });
+
+    it('should return an empty array for an incorrect query', function() {
+      const dbPromise = Note.find( {title: {$regex: /Not Valid/i} });
+      const apiPromise = chai.request(app).get('/api/notes/?searchTerm=NotValid');
+
+      return Promise.all([dbPromise, apiPromise])
+        .then(([data, res]) => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('array');
+          expect(res.body).to.have.length(data.length);
+        });
+    });
+  
   });
 
 });
