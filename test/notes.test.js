@@ -60,7 +60,7 @@ describe('Notes API', function() {
         .then(([data, res]) => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
-          expect(res.body).to.be.a('array');
+          expect(res.body).to.be.an('array');
           expect(res.body).to.have.length(data.length);
         });
     });
@@ -130,8 +130,54 @@ describe('Notes API', function() {
         });
     });
 
-    
+    it('should return an error when missing "title" field', function() {
+      const newNote = {
+        'content': 'This note has no title!'
+      };
+      //call the API
+      return chai.request(app)
+        .post('/api/notes').send(newNote)
+        .catch(err => err.response)
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res).to.be.json;
+          expect(res).to.be.an('object');
+          expect(res.body.message).to.equal('Missing `title` in request body');
+        });
+    });
   
+  });
+
+  describe('PUT /api/notes/:id', function() {
+    it('should update the note with the given id', function() {
+      const updatedNote = {
+        'title': 'Updating and testing',
+        'content' :'updated existing note content'
+      };
+      let data;
+      // 1. First call the db to get an id
+      return Note.findOne().select('id title content')
+        .then(_data => {
+          data = _data;
+          // 2. then call the API with the given id and sending updatedNote
+          return chai.request(app).put(`/api/notes/${data.id}`)
+            .send(updatedNote);
+        })
+        .then(function (res) {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.include.keys('id', 'title', 'content', 'created');
+
+          // 3. then compare database results to API response
+          expect(res.body.id).to.equal(data.id);
+          expect(res.body.title).to.equal(updatedNote.title);
+          expect(res.body.content).to.equal(updatedNote.content);
+        });
+    });
+
+    
   });
 
 });
