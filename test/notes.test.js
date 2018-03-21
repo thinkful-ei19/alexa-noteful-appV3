@@ -51,7 +51,6 @@ describe('Notes API', function() {
           expect(res.body).to.have.length(data.length);
         });
     });
-
   });
 
 });
