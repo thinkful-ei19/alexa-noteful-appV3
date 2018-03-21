@@ -67,4 +67,30 @@ describe('Notes API', function() {
   
   });
 
+  describe('GET /api/notes/:id', function() {
+    it('should return correct notes', function() {
+      let data;
+      //1. First, call the database
+      return Note.findOne().select('id title content')
+        .then(_data => {
+          data = _data;
+          //2. then call the API
+          return chai.request(app).get(`/api/notes/${data.id}`);
+        })
+        .then((res) => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.keys('id', 'title', 'content', 'created');
+
+          //3. then compare
+          expect(res.body.id).to.equal(data.id);
+          expect(res.body.title).to.equal(data.title);
+          expect(res.body.content).to.equal(data.content);
+        });
+    });
+
+  });
+
 });
