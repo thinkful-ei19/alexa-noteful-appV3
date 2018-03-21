@@ -14,15 +14,25 @@ const Note = require('../models/note');
 router.get('/notes', (req, res, next) => {
   const { searchTerm } = req.query;
   let filter = {};
+  let projection = {};
+  let sort = 'created'; //this is the default sorting
+
   //change to use $or operator??
   if (searchTerm) {
-    const re = new RegExp(searchTerm, 'i');
-    filter.title = { $regex: re };
-    //filter.content = { $regex: re};
+    filter.$text = { $search: searchTerm};
+    projection.score = { $meta: 'textScore'};
+    sort = projection;
   }
-      
-  Note.find(filter)
-    .sort('created')
+
+  //this is the same as above
+  // if (searchTerm) {
+  //   filter = { $text: { $search: searchTerm}};
+  //   projection = { score: { $meta: 'textScore'}};
+  //   sort = projection;
+  // }
+  
+  Note.find(filter, projection)
+    .sort(sort)
     .then(results => {
       res.json(results);
     })
