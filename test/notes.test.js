@@ -141,7 +141,7 @@ describe('Notes API', function() {
         .then(res => {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
-          expect(res).to.be.an('object');
+          expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Missing `title` in request body');
         });
     });
@@ -177,7 +177,19 @@ describe('Notes API', function() {
         });
     });
 
-    
+    it('should respond with a 400 for an invalid id', function() {
+      const updatedNote = {
+        'title': 'Updating and testing',
+        'content' :'updated existing note content'
+      };
+
+      return chai.request(app).put('/api/notes/ASASASASASASASASASASASAS')
+        .send(updatedNote)
+        .catch(err => err.response)
+        .then(res => {
+          expect(res).to.have.status(400);
+        });
+    });
   });
 
 });

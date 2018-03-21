@@ -65,20 +65,26 @@ router.get('/notes/:id', (req, res, next) => {
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/notes', (req, res, next) => {
+  const { title, content } = req.body;
 
-  //don't trust users
-  const requiredFields = ['title', 'content'];  
-  for (let i=0; i<requiredFields.length; i++) {
-    const field = requiredFields[i];
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`;
-      return res.status(400).send(message);
-    }
+  if(!title) {
+    const err = new Error('Missing `title` in request body');
+    err.status = 400;
+    return next(err);
   }
+  //don't trust users
+  // const requiredFields = ['title', 'content'];  
+  // for (let i=0; i<requiredFields.length; i++) {
+  //   const field = requiredFields[i];
+  //   if (!(field in req.body)) {
+  //     const message = `Missing \`${field}\` in request body`;
+  //     return res.status(400).send(message);
+  //   }
+  // }
 
   const newNote = {
-    title: req.body.title,
-    content: req.body.content
+    title: title,
+    content: content
   };
 
   Note.create(newNote)
