@@ -32,7 +32,7 @@ router.get('/notes', (req, res, next) => {
   // }
   
   Note.find(filter, projection)
-    .sort(sort)
+    .sort(sort) //so highest ranking search bubbles to top
     .then(results => {
       res.json(results);
     })
@@ -57,7 +57,7 @@ router.get('/notes/:id', (req, res, next) => {
       if(result) {
         res.json(result);
       } else {
-        next();
+        next(); //404
       }
     })
     .catch(next);
@@ -83,7 +83,7 @@ router.post('/notes', (req, res, next) => {
 
   Note.create(newNote)
     .then(result => {
-      res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
+      res.location(`${req.originalUrl}/${result.id}`).status(201).json(result); //201 == Created
     })
     .catch(next);
 });
@@ -107,11 +107,11 @@ router.put('/notes/:id', (req, res, next) => {
   }
 
   const updatedNote = { title, content };
-  
+  const options = { new: true };
   //need if statement - no content don't set property ??
   
 
-  Note.findByIdAndUpdate(id, {$set: updatedNote})
+  Note.findByIdAndUpdate(id, updatedNote, options )
     .then(result => {
       if(result) {
         res.json(result);
@@ -129,7 +129,7 @@ router.delete('/notes/:id', (req, res, next) => {
   Note.findByIdAndRemove(id)
     .then(count => {
       if(count) {
-        res.status(204).end();
+        res.status(204).end(); ///204 = "No Content"
       } else {
         next();
       }

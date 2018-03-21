@@ -17,6 +17,7 @@ noteSchema.set('toObject', {
 });
 
 noteSchema.index({ title: 'text', content: 'text'});
+//index by weights see bonus
 
 module.exports = mongoose.model('Note', noteSchema); 
 
