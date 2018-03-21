@@ -91,6 +91,15 @@ describe('Notes API', function() {
         });
     });
 
+    it('should respond with a 404 for an invalid id', function () {
+      return chai.request(app)
+        .get('/api/notes/ASASASASASASASASASASASAS')
+        .catch(err => err.response)
+        .catch(res => {
+          expect(res).to.have.status(404);
+        });
+    });
+
   });
 
 });
