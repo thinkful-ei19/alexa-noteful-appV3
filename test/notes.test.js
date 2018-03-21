@@ -60,7 +60,7 @@ describe('Notes API', function() {
         .then(([data, res]) => {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
-          expect(res.body).to.be.an('array');
+          expect(res.body).to.be.a('array');
           expect(res.body).to.have.length(data.length);
         });
     });
@@ -81,7 +81,7 @@ describe('Notes API', function() {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
 
-          expect(res.body).to.be.an('object');
+          expect(res.body).to.be.a('object');
           expect(res.body).to.have.keys('id', 'title', 'content', 'created');
 
           //3. then compare
@@ -167,7 +167,7 @@ describe('Notes API', function() {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
 
-          expect(res.body).to.be.an('object');
+          expect(res.body).to.be.a('object');
           expect(res.body).to.include.keys('id', 'title', 'content', 'created');
 
           // 3. then compare database results to API response
@@ -177,7 +177,7 @@ describe('Notes API', function() {
         });
     });
 
-    it('should respond with a 400 for an invalid id', function() {
+    it('should respond with a 404 for an invalid id', function() {
       const updatedNote = {
         'title': 'Updating and testing',
         'content' :'updated existing note content'
@@ -187,7 +187,32 @@ describe('Notes API', function() {
         .send(updatedNote)
         .catch(err => err.response)
         .then(res => {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(404);
+        });
+    });
+  });
+
+  describe('DELETE /api/notes/:id', function() {
+    it('should delete a not with given id', function() {
+      let data;
+      // 1. First call the database to get an id
+      return Note.findOne().select('id title content')
+        .then(_data => {
+          data = _data;
+          // 2. then call the API with the id
+          return chai.request(app).delete(`/api/notes/${data.id}`);
+        })
+        .then((res) => {
+          expect(res).to.have.status(204);
+        });
+    });
+
+    it('should respond with a 404 for an invalid id', function() {
+      return chai.request(app)
+        .delete('/api/notes/99')
+        .catch(err => err.response)
+        .then(res => {
+          expect(res).to.have.status(404);
         });
     });
   });

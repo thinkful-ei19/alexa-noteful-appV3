@@ -102,13 +102,13 @@ router.put('/notes/:id', (req, res, next) => {
   //don't trust users
   if(!title) {
     const err = new Error('Mising `title` in request body');
-    err.status = 400;
+    err.status = 404;
     return next(err);
   }
 
   if(!mongoose.Types.ObjectId.isValid(id)) {
     const err = new Error('The `id` is not valid');
-    err.status = 400;
+    err.status = 404;
     return next(err);
   }
 
@@ -132,6 +132,12 @@ router.put('/notes/:id', (req, res, next) => {
 router.delete('/notes/:id', (req, res, next) => {
   const { id } = req.params;
 
+  if(!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    //should be 400 ==> invalid 404 ==> not found
+    err.status = 404;
+    return next(err);
+  }
   Note.findByIdAndRemove(id)
     .then(count => {
       if(count) {
@@ -139,6 +145,9 @@ router.delete('/notes/:id', (req, res, next) => {
       } else {
         next();
       }
+    })
+    .catch(err => {
+      next(err);
     });
 });
 
