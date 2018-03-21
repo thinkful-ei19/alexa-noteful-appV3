@@ -99,7 +99,39 @@ describe('Notes API', function() {
           expect(res).to.have.status(404);
         });
     });
+  });
 
+  describe('POST /api/notes', function() {
+    it('should create a new note when provided with valid data', function() {
+      const newNote = {
+        'title': 'New note created!',
+        'content': 'Testing post endpoint.',
+        'tags': []
+      };
+      let body;
+      //1. First, call the API to test the new document 
+      return chai.request(app).post('/api/notes').send(newNote)
+        .then(function(res) {
+          body = res.body;
+          expect(res).to.have.status(201);
+          expect(res).to.have.header('location');
+          expect(res).to.be.json;
+
+          expect(body).to.be.an('object');
+          expect(body).to.have.keys('id', 'title', 'content', 'created');
+          //2. then call the database to retrieve the new document
+          return Note.findById(body.id);
+        })
+        //3. then compare the API response to the database results
+        .then(data => {
+          expect(body.id).to.equal(data.id);
+          expect(body.title).to.equal(data.title);
+          expect(body.content).to.equal(data.content);
+        });
+    });
+
+    
+  
   });
 
 });
